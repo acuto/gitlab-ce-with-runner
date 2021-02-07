@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+
+  gitlab-web:
+    image: gitlab/gitlab-ce:13.8.0-ce.0
+    container_name: gitlab-ce
+    hostname: gitlab-ce
+    restart: unless-stopped
+    volumes:
+      - './GitLab-CE/gitlab-config:/etc/gitlab'
+      - './GitLab-CE/gitlab-logs:/var/log/gitlab'
+      - './GitLab-CE/gitlab-data:/var/opt'
+    ports:
+      - '42222:22'
+      - '40080:80'
+      - '40443:443'
+      - '45000:5000'
+    environment:
+        GITLAB_OMNIBUS_CONFIG: |
+            gitlab_rails['gitlab_shell_ssh_port'] = 42222
+            registry_external_url 'http://localhost:45000'
+            registry['enable'] = true
+        GITLAB_ROOT_PASSWORD: "DOAcademy"
+    networks:
+      - gitlab-ce-network
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine-v13.8.0
+    container_name: gitlab-ce-runner
+    hostname: gitlab-ce-runner
+    restart: unless-stopped
+    volumes:
+      - './GitLab-CE/gitlab-runner-config:/etc/gitlab-runner:Z'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    networks:
+      - gitlab-ce-network
+
+networks:
+  gitlab-ce-network:
+    name: gitlab-ce-network

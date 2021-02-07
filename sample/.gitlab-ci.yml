@@ -1,0 +1,22 @@
+image: mgmuhilan/dind-maven3-jdk8
+
+services:
+  - docker:dind
+
+before_script:
+  - docker info
+
+stages:
+  - build and test
+  - publish
+
+build and test:
+  stage: build and test
+  script:
+    - ./gradlew buildDocker
+
+publish:
+  stage: publish
+  script:
+    - docker tag graphql:0.2.0 localhost:5000/graphql:0.2.0
+    - docker push localhost:5000/graphql:0.2.0
